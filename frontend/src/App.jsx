@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import BudgetSummary from "./components/BudgetSummary";
+import SavedTrips from "./pages/SavedTrips.jsx";
 import "./App.css";
 
 function Home() {
@@ -7,12 +9,21 @@ function Home() {
     <main>
       <section className="hero">
         <div className="hero-content">
-          <span className="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</span>
-          <h1>Discover places.<br />Create memories.</h1>
+          <span className="eyebrow">
+            YOUR NEXT ADVENTURE STARTS HERE
+          </span>
+
+          <h1>
+            Discover places.
+            <br />
+            Create memories.
+          </h1>
+
           <p>
             Explore amazing destinations, plan your itinerary,
             and manage your travel budget—all in one place.
           </p>
+
           <a href="/destinations" className="primary-button">
             Explore Destinations <span>→</span>
           </a>
@@ -21,6 +32,7 @@ function Home() {
 
       <section className="features">
         <h2>Your journey, simplified</h2>
+
         <p className="section-subtitle">
           Everything you need to plan your next unforgettable trip.
         </p>
@@ -29,19 +41,25 @@ function Home() {
           <article className="feature-card">
             <span className="feature-icon">🌍</span>
             <h3>Explore Destinations</h3>
-            <p>Discover new places and find inspiration for your next journey.</p>
+            <p>
+              Discover new places and find inspiration for your next journey.
+            </p>
           </article>
 
           <article className="feature-card">
             <span className="feature-icon">🗓️</span>
             <h3>Plan Your Itinerary</h3>
-            <p>Organize your activities and create a day-by-day travel plan.</p>
+            <p>
+              Organize your activities and create a day-by-day travel plan.
+            </p>
           </article>
 
           <article className="feature-card">
             <span className="feature-icon">💰</span>
             <h3>Manage Your Budget</h3>
-            <p>Estimate your expenses and keep your travel costs organized.</p>
+            <p>
+              Estimate your expenses and keep your travel costs organized.
+            </p>
           </article>
         </div>
       </section>
@@ -59,24 +77,35 @@ function Placeholder({ title, description }) {
   );
 }
 
+function PlanTrip() {
+  return (
+    <main className="placeholder-page">
+      <BudgetSummary />
+    </main>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
+
       <Routes>
         <Route path="/" element={<Home />} />
+
         <Route
           path="/destinations"
-          element={<Placeholder title="Explore Destinations" description="Find your next favorite destination." />}
+          element={
+            <Placeholder
+              title="Explore Destinations"
+              description="Find your next favorite destination."
+            />
+          }
         />
-        <Route
-          path="/create-trip"
-          element={<Placeholder title="Plan Your Trip" description="Build your personalized itinerary." />}
-        />
-        <Route
-          path="/saved-trips"
-          element={<Placeholder title="Saved Trips" description="Keep all your travel plans together." />}
-        />
+
+        <Route path="/create-trip" element={<PlanTrip />} />
+
+        <Route path="/saved-trips" element={<SavedTrips />} />
       </Routes>
     </BrowserRouter>
   );
