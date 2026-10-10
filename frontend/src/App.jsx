@@ -1,8 +1,8 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import BudgetSummary from "./components/BudgetSummary";
+import BudgetCalculator from "./pages/BudgetCalculator";
 import SavedTrips from "./pages/SavedTrips";
+import BudgetSummary from "./components/BudgetSummary";
 import ExploreDestinations from "./pages/ExploreDestinations";
 import "./App.css";
 
@@ -82,7 +82,7 @@ export default function App() {
     <BrowserRouter>
       <Navbar />
 
-      <Routes>
+            <Routes>
         <Route path="/" element={<Home />} />
 
         <Route
@@ -98,6 +98,11 @@ export default function App() {
         <Route
           path="/saved-trips"
           element={<SavedTrips />}
+        />
+
+        <Route
+          path="/budget-calculator"
+          element={<BudgetCalculator />}
         />
       </Routes>
     </BrowserRouter>

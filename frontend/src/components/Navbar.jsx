@@ -13,6 +13,7 @@ export default function Navbar() {
         <NavLink to="/destinations">Explore</NavLink>
         <NavLink to="/create-trip">Plan a Trip</NavLink>
         <NavLink to="/saved-trips">Saved Trips</NavLink>
+        <NavLink to="/budget-calculator">Budget Calculator</NavLink>
       </nav>
     </header>
   );

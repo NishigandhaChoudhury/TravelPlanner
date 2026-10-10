@@ -1,57 +1,104 @@
-import { useEffect, useState } from "react";
-import TripSummary from "../components/TripSummary";
 
-const STORAGE_KEY = "travelPlannerTrips";
+import { useState } from "react";
+import {
+  calculateTotalBudget,
+  formatCurrency,
+  getSavedTrips,
+  saveTrips,
+} from "../utils/tripUtils";
 
 function SavedTrips() {
-  const [trips, setTrips] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    } catch {
-      return [];
-    }
-  });
+  const [trips, setTrips] = useState(() => getSavedTrips());
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
-  }, [trips]);
+  function handleDelete(id) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this saved trip?"
+    );
 
-  const addSampleTrip = () => {
-    setTrips((previous) => [
-      ...previous,
-      {
-        id: crypto.randomUUID(),
-        name: "Weekend Getaway",
-        destination: "Goa",
-        startDate: "2026-11-14",
-        endDate: "2026-11-16",
-        budget: 8000,
-      },
-    ]);
-  };
+    if (!confirmed) return;
 
-  const removeTrip = (id) => {
-    setTrips((previous) => previous.filter((trip) => trip.id !== id));
-  };
+    const updatedTrips = trips.filter((trip) => trip.id !== id);
+    setTrips(updatedTrips);
+    saveTrips(updatedTrips);
+  }
 
   return (
     <main className="saved-trips-page">
-      <h1>Saved Trips</h1>
-      <p>Your planned adventures in one place.</p>
-
-      <button onClick={addSampleTrip}>Add Sample Trip</button>
+      <section className="saved-trips-header">
+        <span className="budget-eyebrow">YOUR TRAVEL COLLECTION</span>
+        <h1>Saved Trips</h1>
+        <p>
+          Access your saved travel plans and review their estimated budgets.
+        </p>
+      </section>
 
       {trips.length === 0 ? (
-        <p>You haven't saved any trips yet.</p>
-      ) : (
-        trips.map((trip) => (
-          <div key={trip.id}>
-            <TripSummary trip={trip} />
-            <button onClick={() => removeTrip(trip.id)}>
-              Remove Trip
-            </button>
+        <section className="saved-trips-empty">
+          <div className="saved-trips-empty-icon" aria-hidden="true">
+            ✈
           </div>
-        ))
+          <h2>No saved trips yet</h2>
+          <p>
+            Your completed travel plans will appear here once you save them.
+          </p>
+        </section>
+      ) : (
+        <section className="saved-trips-grid">
+          {trips.map((trip) => {
+            const budget = trip.budget || {};
+            const total = calculateTotalBudget(budget);
+
+            return (
+              <article className="saved-trip-card" key={trip.id}>
+                <div className="saved-trip-card-top">
+                  <span className="saved-trip-label">SAVED ITINERARY</span>
+
+                  <button
+                    type="button"
+                    className="saved-trip-delete"
+                    onClick={() => handleDelete(trip.id)}
+                    aria-label={`Delete ${trip.name || "saved trip"}`}
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                <h2>{trip.name || "Untitled Trip"}</h2>
+
+                {trip.destination && (
+                  <p className="saved-trip-destination">
+                    {trip.destination}
+                  </p>
+                )}
+
+                {trip.startDate && (
+                  <p className="saved-trip-date">
+                    Start date: {trip.startDate}
+                  </p>
+                )}
+
+                <div className="saved-trip-budget">
+                  <span>Estimated Budget</span>
+                  <strong>{formatCurrency(total)}</strong>
+                </div>
+
+                <div className="saved-trip-expenses">
+                  <span>Transportation</span>
+                  <span>{formatCurrency(budget.transport)}</span>
+
+                  <span>Accommodation</span>
+                  <span>{formatCurrency(budget.accommodation)}</span>
+
+                  <span>Food & Dining</span>
+                  <span>{formatCurrency(budget.food)}</span>
+
+                  <span>Activities</span>
+                  <span>{formatCurrency(budget.activities)}</span>
+                </div>
+              </article>
+            );
+          })}
+        </section>
       )}
     </main>
   );
