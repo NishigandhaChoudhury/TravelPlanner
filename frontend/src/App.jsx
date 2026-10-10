@@ -1,7 +1,9 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import BudgetSummary from "./components/BudgetSummary";
-import SavedTrips from "./pages/SavedTrips.jsx";
+import SavedTrips from "./pages/SavedTrips";
+import ExploreDestinations from "./pages/ExploreDestinations";
 import "./App.css";
 
 function Home() {
@@ -67,16 +69,6 @@ function Home() {
   );
 }
 
-function Placeholder({ title, description }) {
-  return (
-    <main className="placeholder-page">
-      <h1>{title}</h1>
-      <p>{description}</p>
-      <p>We're building this feature with our project team.</p>
-    </main>
-  );
-}
-
 function PlanTrip() {
   return (
     <main className="placeholder-page">
@@ -95,17 +87,18 @@ export default function App() {
 
         <Route
           path="/destinations"
-          element={
-            <Placeholder
-              title="Explore Destinations"
-              description="Find your next favorite destination."
-            />
-          }
+          element={<ExploreDestinations />}
         />
 
-        <Route path="/create-trip" element={<PlanTrip />} />
+        <Route
+          path="/create-trip"
+          element={<PlanTrip />}
+        />
 
-        <Route path="/saved-trips" element={<SavedTrips />} />
+        <Route
+          path="/saved-trips"
+          element={<SavedTrips />}
+        />
       </Routes>
     </BrowserRouter>
   );
