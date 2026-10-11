@@ -647,3 +647,228 @@
     max-width: 100%;
   }
 }
+
+
+/* ==========================================
+   SAVED TRIPS — SOOTHING TRAVEL JOURNAL
+   ========================================== */
+
+.saved-trips-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 44px clamp(18px, 4vw, 48px) 76px;
+  color: #29483e;
+}
+
+.saved-trips-page > .st-muted:first-child {
+  margin: 0 0 10px;
+  color: #47816f;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 2px;
+}
+
+.saved-trips-page > h1 {
+  margin: 0 0 10px;
+  color: #20483b !important;
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 750;
+  letter-spacing: -1.2px;
+  line-height: 1.2;
+}
+
+.saved-trips-page > p:nth-of-type(2) {
+  margin: 0 0 30px;
+  color: #65786e;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* Each saved trip */
+
+.saved-trips-page .st-card {
+  margin: 22px 0;
+  padding: clamp(22px, 3vw, 32px);
+  border: 1px solid #e0e9e2;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #ffffff 0%, #fcfdfb 100%);
+  box-shadow: 0 8px 28px rgba(38, 72, 57, 0.055);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.saved-trips-page .st-card:hover {
+  border-color: #c9ddd0;
+  box-shadow: 0 12px 32px rgba(38, 72, 57, 0.085);
+}
+
+/* Trip title and details — fix the pale heading */
+
+.saved-trips-page .st-card .st-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e8eee8;
+}
+
+.saved-trips-page .st-card .st-top > div {
+  min-width: 0;
+}
+
+.saved-trips-page .st-card .st-top h2 {
+  margin: 6px 0 14px;
+  color: #234b3e !important;
+  font-size: clamp(22px, 2.5vw, 28px);
+  font-weight: 750;
+  line-height: 1.35;
+  letter-spacing: -0.5px;
+  overflow-wrap: anywhere;
+}
+
+.saved-trips-page .st-card .st-muted {
+  color: #64776c;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.saved-trips-page .st-card .st-top p {
+  margin: 5px 0;
+}
+
+/* Budget information */
+
+.saved-trips-page .st-card .st-top p:last-child {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 9px 13px;
+  border: 1px solid #dcebe1;
+  border-radius: 9px;
+  background: #edf5ef;
+  color: #28604b;
+  font-weight: 700;
+}
+
+/* Delete button */
+
+.saved-trips-page .st-button {
+  flex-shrink: 0;
+  padding: 10px 15px;
+  border: 1px solid #f0deda;
+  border-radius: 9px;
+  background: #fff7f5;
+  color: #9d5146;
+  font-size: 13px;
+  font-weight: 650;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.saved-trips-page .st-button:hover {
+  border-color: #e9c5bd;
+  background: #ffebe6;
+}
+
+/* Itinerary heading */
+
+.saved-trips-page .st-card > div:last-child {
+  padding-top: 22px;
+}
+
+.saved-trips-page .st-card > div:last-child > h3 {
+  margin: 0 0 7px;
+  color: #285243;
+  font-size: 19px;
+  font-weight: 750;
+}
+
+.saved-trips-page .st-card > div:last-child > .st-muted {
+  margin: 0 0 18px;
+}
+
+/* Individual activities */
+
+.saved-trips-page .st-activity {
+  position: relative;
+  margin-top: 12px;
+  padding: 16px 18px;
+  border: 1px solid #e5ece5;
+  border-left: 3px solid #86ad96;
+  border-radius: 10px;
+  background: #f8faf7;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.saved-trips-page .st-activity:hover {
+  border-left-color: #367760;
+  background: #f0f6f0;
+}
+
+.saved-trips-page .st-activity strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #2b5143;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.saved-trips-page .st-activity p {
+  margin: 4px 0;
+  color: #6b7c72;
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+/* Empty state and Plan a Trip link */
+
+.saved-trips-page .st-link {
+  margin-top: 10px;
+  padding: 12px 17px;
+  border-radius: 9px;
+  background: #226b55;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.saved-trips-page .st-link:hover {
+  background: #194f40;
+}
+
+/* Responsive layout */
+
+@media (max-width: 650px) {
+  .saved-trips-page {
+    padding: 28px 15px 48px;
+  }
+
+  .saved-trips-page > h1 {
+    font-size: 33px;
+  }
+
+  .saved-trips-page .st-card {
+    margin: 17px 0;
+    padding: 21px 17px;
+    border-radius: 14px;
+  }
+
+  .saved-trips-page .st-card .st-top {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .saved-trips-page .st-card .st-top h2 {
+    font-size: 23px;
+  }
+
+  .saved-trips-page .st-button {
+    width: 100%;
+  }
+
+  .saved-trips-page .st-activity {
+    padding: 14px;
+  }
+}
