@@ -1,20 +1,21 @@
+
 import { useEffect, useState } from "react";
-
-const STORAGE_KEY = "travelPlannerSavedTrips";
-
-function readSavedTrips() {
-  try {
-    const trips = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    return Array.isArray(trips) ? trips : [];
-  } catch {
-    return [];
-  }
-}
+import {
+  calculateTotalBudget,
+  formatCurrency,
+  getSavedTrips,
+  saveTrips,
+} from "../utils/tripUtils";
+import "../components/TripPlanner.css";
 
 function formatDate(value) {
   if (!value) return "Not set";
 
-  return new Date(`${value}T00:00:00`).toLocaleDateString(undefined, {
+  const date = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString(undefined, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -23,159 +24,131 @@ function formatDate(value) {
 
 export default function SavedTrips() {
   const [trips, setTrips] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setTrips(readSavedTrips());
+    setTrips(getSavedTrips());
   }, []);
 
   function deleteTrip(id) {
-    const updatedTrips = trips.filter((trip) => trip.id !== id);
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this saved trip?"
+    );
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTrips));
-    setTrips(updatedTrips);
+    if (!confirmed) return;
+
+    try {
+      const updatedTrips = trips.filter((trip) => trip.id !== id);
+      saveTrips(updatedTrips);
+      setTrips(updatedTrips);
+      setError("");
+    } catch {
+      setError("The trip could not be deleted. Please try again.");
+    }
   }
 
   return (
     <main className="saved-trips-page">
-      <style>{`
-        .saved-trips-page {
-          max-width: 1000px;
-          margin: 0 auto;
-          padding: 40px 24px 60px;
-          color: #173f38;
-        }
-
-        .saved-trips-page h1 {
-          font-size: clamp(28px, 4vw, 40px);
-          margin: 8px 0;
-        }
-
-        .saved-trips-page .muted {
-          color: #64748b;
-          line-height: 1.6;
-        }
-
-        .saved-trips-page .trip-card {
-          background: white;
-          border: 1px solid #dfe9e5;
-          border-radius: 16px;
-          padding: 22px;
-          margin-top: 20px;
-          box-shadow: 0 8px 24px rgba(23, 63, 56, 0.06);
-          overflow-wrap: anywhere;
-        }
-
-        .saved-trips-page .trip-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 16px;
-        }
-
-        .saved-trips-page button,
-        .saved-trips-page .trip-link {
-          cursor: pointer;
-          border: 0;
-          border-radius: 8px;
-          padding: 11px 14px;
-          font-weight: 700;
-          text-decoration: none;
-        }
-
-        .saved-trips-page button {
-          background: #fff0f0;
-          color: #a33434;
-        }
-
-        .saved-trips-page .trip-link {
-          display: inline-block;
-          background: #087f70;
-          color: white;
-        }
-
-        .saved-trips-page .activity {
-          border-top: 1px solid #e5ece9;
-          padding: 12px 0;
-        }
-
-        @media (max-width: 600px) {
-          .saved-trips-page {
-            padding: 25px 14px 40px;
-          }
-
-          .saved-trips-page .trip-card {
-            padding: 16px;
-          }
-
-          .saved-trips-page .trip-header {
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-      <p className="muted">YOUR TRAVEL COLLECTION</p>
+      <p className="st-muted">YOUR TRAVEL COLLECTION</p>
       <h1>Saved Trips</h1>
-      <p className="muted">
-        Review your manually planned trips and their activities.
+      <p className="st-muted">
+        Your trips, plans, activities, and estimated budgets in one place.
       </p>
 
+      {error && (
+        <p className="mp-error" role="alert">
+          {error}
+        </p>
+      )}
+
       {trips.length === 0 ? (
-        <section className="trip-card">
+        <section className="st-card">
           <h2>No saved trips yet</h2>
-          <p className="muted">
-            Create your first trip, add activities, and save it here.
+          <p className="st-muted">
+            Create your first trip, build your itinerary, and save it here.
           </p>
-          <a className="trip-link" href="/create-trip">
+          <a className="st-link" href="/create-trip">
             Plan a Trip →
           </a>
         </section>
       ) : (
-        trips.map((trip) => (
-          <article className="trip-card" key={trip.id}>
-            <div className="trip-header">
-              <div>
-                <h2>{trip.name}</h2>
-                <p className="muted">{trip.destination}</p>
-                <p className="muted">
-                  {formatDate(trip.startDate)} – {formatDate(trip.endDate)}
-                  {" · "}
-                  {trip.travelers}{" "}
-                  {Number(trip.travelers) === 1
-                    ? "traveller"
-                    : "travellers"}
-                </p>
+        trips.map((trip) => {
+          const activities = Array.isArray(trip.itinerary)
+            ? [...trip.itinerary].sort(
+                (a, b) =>
+                  (a.date || "").localeCompare(b.date || "") ||
+                  (a.time || "").localeCompare(b.time || "")
+              )
+            : [];
+
+          const totalBudget = calculateTotalBudget(trip.budget || {});
+
+          return (
+            <article className="st-card" key={trip.id}>
+              <div className="st-top">
+                <div>
+                  <p className="mp-eyebrow">YOUR TRIP</p>
+                  <h2>{trip.name || trip.destination || "Untitled trip"}</h2>
+                  <p className="st-muted">
+                    Destination: {trip.destination || "Not specified"}
+                  </p>
+                  <p className="st-muted">
+                    {formatDate(trip.startDate)} – {formatDate(trip.endDate)}
+                  </p>
+                  <p className="st-muted">
+                    {Number(trip.travelers) || 1}{" "}
+                    {Number(trip.travelers) === 1 ? "traveller" : "travellers"}
+                    {trip.days ? ` · ${trip.days} days` : ""}
+                  </p>
+                  <p className="st-muted">
+                    Estimated budget: {formatCurrency(totalBudget)}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="st-button"
+                  onClick={() => deleteTrip(trip.id)}
+                  aria-label={`Delete ${trip.name || trip.destination || "trip"}`}
+                >
+                  Delete trip
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => deleteTrip(trip.id)}
-              >
-                Delete trip
-              </button>
-            </div>
+              <div>
+                <h3>Itinerary</h3>
+                <p className="st-muted">
+                  {activities.length}{" "}
+                  {activities.length === 1 ? "activity" : "activities"} planned
+                </p>
 
-            <h3>
-              Itinerary · {(trip.itinerary || []).length} activities
-            </h3>
-
-            {(trip.itinerary || []).length === 0 ? (
-              <p className="muted">No activities were added to this trip.</p>
-            ) : (
-              trip.itinerary.map((activity) => (
-                <div className="activity" key={activity.id}>
-                  <strong>{activity.title}</strong>
-                  <p className="muted">
-                    {formatDate(activity.date)}
-                    {activity.time ? ` · ${activity.time}` : ""}
+                {activities.length === 0 ? (
+                  <p className="st-muted">
+                    No activities have been added to this trip yet.
                   </p>
-                  {activity.notes && (
-                    <p className="muted">{activity.notes}</p>
-                  )}
-                </div>
-              ))
-            )}
-          </article>
-        ))
+                ) : (
+                  activities.map((activity, index) => (
+                    <div
+                      className="st-activity"
+                      key={activity.id || `${trip.id}-activity-${index}`}
+                    >
+                      <strong>
+                        {activity.title || activity.name || "Untitled activity"}
+                      </strong>
+                      <p className="st-muted">
+                        {formatDate(activity.date)}
+                        {activity.time ? ` · ${activity.time}` : ""}
+                      </p>
+                      {activity.notes && (
+                        <p className="st-muted">{activity.notes}</p>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </article>
+          );
+        })
       )}
     </main>
   );
