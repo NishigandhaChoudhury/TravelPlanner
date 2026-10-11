@@ -1,8 +1,10 @@
+import { useState } from "react";
+import TripForm from "./components/TripForm";
+import Itinerary from "./components/Itinerary";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import BudgetCalculator from "./pages/BudgetCalculator";
 import SavedTrips from "./pages/SavedTrips";
-import BudgetSummary from "./components/BudgetSummary";
 import ExploreDestinations from "./pages/ExploreDestinations";
 import "./App.css";
 
@@ -70,10 +72,36 @@ function Home() {
 }
 
 function PlanTrip() {
-  return (
-    <main className="placeholder-page">
-      <BudgetSummary />
-    </main>
+  const [trip, setTrip] = useState(null);
+
+  function saveTrip(updatedTrip) {
+    setTrip(updatedTrip);
+
+    try {
+      const key = "travelPlannerSavedTrips";
+      const existing = JSON.parse(localStorage.getItem(key) || "[]");
+      const trips = Array.isArray(existing) ? existing : [];
+
+      localStorage.setItem(
+        key,
+        JSON.stringify([
+          updatedTrip,
+          ...trips.filter((item) => item.id !== updatedTrip.id),
+        ])
+      );
+    } catch (error) {
+      console.error("Could not save trip:", error);
+    }
+  }
+
+  return trip ? (
+    <Itinerary
+      key={trip.id}
+      trip={trip}
+      onUpdateTrip={saveTrip}
+    />
+  ) : (
+    <TripForm onCreateTrip={saveTrip} />
   );
 }
 

@@ -1,107 +1,155 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   calculateTotalBudget,
   formatCurrency,
   getSavedTrips,
   saveTrips,
 } from "../utils/tripUtils";
+import "../components/TripPlanner.css";
 
-function SavedTrips() {
-  const [trips, setTrips] = useState(() => getSavedTrips());
+function formatDate(value) {
+  if (!value) return "Not set";
 
-  function handleDelete(id) {
+  const date = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export default function SavedTrips() {
+  const [trips, setTrips] = useState([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setTrips(getSavedTrips());
+  }, []);
+
+  function deleteTrip(id) {
     const confirmed = window.confirm(
       "Are you sure you want to delete this saved trip?"
     );
 
     if (!confirmed) return;
 
-    const updatedTrips = trips.filter((trip) => trip.id !== id);
-    setTrips(updatedTrips);
-    saveTrips(updatedTrips);
+    try {
+      const updatedTrips = trips.filter((trip) => trip.id !== id);
+      saveTrips(updatedTrips);
+      setTrips(updatedTrips);
+      setError("");
+    } catch {
+      setError("The trip could not be deleted. Please try again.");
+    }
   }
 
   return (
     <main className="saved-trips-page">
-      <section className="saved-trips-header">
-        <span className="budget-eyebrow">YOUR TRAVEL COLLECTION</span>
-        <h1>Saved Trips</h1>
-        <p>
-          Access your saved travel plans and review their estimated budgets.
+      <p className="st-muted">YOUR TRAVEL COLLECTION</p>
+      <h1>Saved Trips</h1>
+      <p className="st-muted">
+        Your trips, plans, activities, and estimated budgets in one place.
+      </p>
+
+      {error && (
+        <p className="mp-error" role="alert">
+          {error}
         </p>
-      </section>
+      )}
 
       {trips.length === 0 ? (
-        <section className="saved-trips-empty">
-          <div className="saved-trips-empty-icon" aria-hidden="true">
-            ✈
-          </div>
+        <section className="st-card">
           <h2>No saved trips yet</h2>
-          <p>
-            Your completed travel plans will appear here once you save them.
+          <p className="st-muted">
+            Create your first trip, build your itinerary, and save it here.
           </p>
+          <a className="st-link" href="/create-trip">
+            Plan a Trip →
+          </a>
         </section>
       ) : (
-        <section className="saved-trips-grid">
-          {trips.map((trip) => {
-            const budget = trip.budget || {};
-            const total = calculateTotalBudget(budget);
+        trips.map((trip) => {
+          const activities = Array.isArray(trip.itinerary)
+            ? [...trip.itinerary].sort(
+                (a, b) =>
+                  (a.date || "").localeCompare(b.date || "") ||
+                  (a.time || "").localeCompare(b.time || "")
+              )
+            : [];
 
-            return (
-              <article className="saved-trip-card" key={trip.id}>
-                <div className="saved-trip-card-top">
-                  <span className="saved-trip-label">SAVED ITINERARY</span>
+          const totalBudget = calculateTotalBudget(trip.budget || {});
 
-                  <button
-                    type="button"
-                    className="saved-trip-delete"
-                    onClick={() => handleDelete(trip.id)}
-                    aria-label={`Delete ${trip.name || "saved trip"}`}
-                  >
-                    Delete
-                  </button>
-                </div>
-
-                <h2>{trip.name || "Untitled Trip"}</h2>
-
-                {trip.destination && (
-                  <p className="saved-trip-destination">
-                    {trip.destination}
+          return (
+            <article className="st-card" key={trip.id}>
+              <div className="st-top">
+                <div>
+                  <p className="mp-eyebrow">YOUR TRIP</p>
+                  <h2>{trip.name || trip.destination || "Untitled trip"}</h2>
+                  <p className="st-muted">
+                    Destination: {trip.destination || "Not specified"}
                   </p>
-                )}
-
-                {trip.startDate && (
-                  <p className="saved-trip-date">
-                    Start date: {trip.startDate}
+                  <p className="st-muted">
+                    {formatDate(trip.startDate)} – {formatDate(trip.endDate)}
                   </p>
+                  <p className="st-muted">
+                    {Number(trip.travelers) || 1}{" "}
+                    {Number(trip.travelers) === 1 ? "traveller" : "travellers"}
+                    {trip.days ? ` · ${trip.days} days` : ""}
+                  </p>
+                  <p className="st-muted">
+                    Estimated budget: {formatCurrency(totalBudget)}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="st-button"
+                  onClick={() => deleteTrip(trip.id)}
+                  aria-label={`Delete ${trip.name || trip.destination || "trip"}`}
+                >
+                  Delete trip
+                </button>
+              </div>
+
+              <div>
+                <h3>Itinerary</h3>
+                <p className="st-muted">
+                  {activities.length}{" "}
+                  {activities.length === 1 ? "activity" : "activities"} planned
+                </p>
+
+                {activities.length === 0 ? (
+                  <p className="st-muted">
+                    No activities have been added to this trip yet.
+                  </p>
+                ) : (
+                  activities.map((activity, index) => (
+                    <div
+                      className="st-activity"
+                      key={activity.id || `${trip.id}-activity-${index}`}
+                    >
+                      <strong>
+                        {activity.title || activity.name || "Untitled activity"}
+                      </strong>
+                      <p className="st-muted">
+                        {formatDate(activity.date)}
+                        {activity.time ? ` · ${activity.time}` : ""}
+                      </p>
+                      {activity.notes && (
+                        <p className="st-muted">{activity.notes}</p>
+                      )}
+                    </div>
+                  ))
                 )}
-
-                <div className="saved-trip-budget">
-                  <span>Estimated Budget</span>
-                  <strong>{formatCurrency(total)}</strong>
-                </div>
-
-                <div className="saved-trip-expenses">
-                  <span>Transportation</span>
-                  <span>{formatCurrency(budget.transport)}</span>
-
-                  <span>Accommodation</span>
-                  <span>{formatCurrency(budget.accommodation)}</span>
-
-                  <span>Food & Dining</span>
-                  <span>{formatCurrency(budget.food)}</span>
-
-                  <span>Activities</span>
-                  <span>{formatCurrency(budget.activities)}</span>
-                </div>
-              </article>
-            );
-          })}
-        </section>
+              </div>
+            </article>
+          );
+        })
       )}
     </main>
   );
 }
-
-export default SavedTrips;
