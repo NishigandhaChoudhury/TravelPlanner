@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import "./TripPlanner.css";
 
@@ -271,12 +271,13 @@ export default function Itinerary({ trip, onUpdateTrip }) {
       </section>
 
       <div className="mp-actions">
-        <a className="mp-button mp-secondary" href="/create-trip">
+        <Link className="mp-button mp-secondary" to="/create-trip">
           ← Back to Plan a Trip
-        </a>
-        <a className="mp-button mp-primary" href="/saved-trips">
+        </Link>
+
+        <Link className="mp-button mp-primary" to="/saved-trips">
           Finish and view Saved Trips →
-        </a>
+        </Link>
       </div>
     </main>
   );
